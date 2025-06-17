@@ -1,7 +1,7 @@
 package com.ebusiness.ebusiness.rest;
 
 import com.ebusiness.ebusiness.entity.Tracking;
-import com.ebusiness.ebusiness.service.TrackingService;
+import com.ebusiness.ebusiness.service.service.TrackingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

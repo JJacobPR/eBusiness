@@ -1,8 +1,8 @@
-package com.ebusiness.ebusiness.service;
+package com.ebusiness.ebusiness.service.impl;
 
 import com.ebusiness.ebusiness.entity.UserEntity;
 import com.ebusiness.ebusiness.repository.UserRepository;
-import com.ebusiness.ebusiness.service.UserService;
+import com.ebusiness.ebusiness.service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.ebusiness.ebusiness.service;
+package com.ebusiness.ebusiness.service.service;
 
 
 import com.ebusiness.ebusiness.entity.Role;

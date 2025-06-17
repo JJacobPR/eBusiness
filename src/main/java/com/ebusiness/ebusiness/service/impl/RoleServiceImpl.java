@@ -1,7 +1,8 @@
-package com.ebusiness.ebusiness.service;
+package com.ebusiness.ebusiness.service.impl;
 
 import com.ebusiness.ebusiness.entity.Role;
 import com.ebusiness.ebusiness.repository.RoleRepository;
+import com.ebusiness.ebusiness.service.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

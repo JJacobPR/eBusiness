@@ -2,7 +2,7 @@ package com.ebusiness.ebusiness.security;
 
 import com.ebusiness.ebusiness.entity.Role;
 import com.ebusiness.ebusiness.entity.UserEntity;
-import com.ebusiness.ebusiness.service.UserService;
+import com.ebusiness.ebusiness.service.service.UserService;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

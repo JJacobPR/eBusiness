@@ -1,7 +1,8 @@
-package com.ebusiness.ebusiness.service;
+package com.ebusiness.ebusiness.service.impl;
 
 import com.ebusiness.ebusiness.entity.Tracking;
 import com.ebusiness.ebusiness.repository.TrackingRepository;
+import com.ebusiness.ebusiness.service.service.TrackingService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
