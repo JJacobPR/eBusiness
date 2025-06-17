@@ -4,8 +4,10 @@ import com.ebusiness.ebusiness.dto.RegisterDriverDto;
 import com.ebusiness.ebusiness.entity.Driver;
 import com.ebusiness.ebusiness.entity.Role;
 import com.ebusiness.ebusiness.repository.DriverRepository;
+import com.ebusiness.ebusiness.repository.UserRepository;
 import com.ebusiness.ebusiness.service.service.DriverService;
 import com.ebusiness.ebusiness.service.service.RoleService;
+import com.ebusiness.ebusiness.service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,14 +21,16 @@ import java.util.Optional;
 public class DriverServiceImpl implements DriverService {
 
     private final DriverRepository driverRepository;
+    private final UserService userService;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public DriverServiceImpl(DriverRepository driverRepository, PasswordEncoder passwordEncoder, RoleService roleService) {
+    public DriverServiceImpl(DriverRepository driverRepository, PasswordEncoder passwordEncoder, RoleService roleService, UserService userService) {
         this.driverRepository = driverRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
+        this.userService = userService;
     }
 
     @Override
@@ -45,6 +49,11 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    public boolean existsByUsername(String username) {
+        return driverRepository.existsByUsername(username);
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         return driverRepository.existsByEmail(email);
     }
@@ -54,17 +63,22 @@ public class DriverServiceImpl implements DriverService {
         return driverRepository.save(driver);
     }
 
-    public Driver registerDriver(RegisterDriverDto dto) {
-        if (driverRepository.existsByEmail(dto.getEmail())) {
+    public Driver registerDriver(RegisterDriverDto registerDriverDto) {
+
+        if (userService.existsByEmail(registerDriverDto.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
 
+        if (userService.existsByUsername(registerDriverDto.getUsername())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+
         Driver driver = new Driver();
-        driver.setUsername(dto.getUsername());
-        driver.setEmail(dto.getEmail());
-        driver.setPassword(passwordEncoder.encode(dto.getPassword()));
-        driver.setPhone(dto.getPhone());
-        driver.setVehicleDetails(dto.getVehicleDetails());
+        driver.setUsername(registerDriverDto.getUsername());
+        driver.setEmail(registerDriverDto.getEmail());
+        driver.setPassword(passwordEncoder.encode(registerDriverDto.getPassword()));
+        driver.setPhone(registerDriverDto.getPhone());
+        driver.setVehicleDetails(registerDriverDto.getVehicleDetails());
         driver.setAvailabilityStatus(false);
         driver.setVerificationStatus(false);
         driver.setRegistrationDate(LocalDateTime.now());
@@ -96,5 +110,25 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public void deleteDriver(Integer id) {
         driverRepository.deleteById(id);
+    }
+
+    @Override
+    public void verifyDriver(String email) {
+
+        driverRepository.findByEmail(email).map(existing -> {
+            existing.setVerificationStatus(true);
+            return driverRepository.save(existing);
+        }).orElseThrow(() -> new RuntimeException("Driver not found"));
+
+    }
+
+    @Override
+    public void blockDriver(String email) {
+
+        driverRepository.findByEmail(email).map(existing -> {
+            existing.setVerificationStatus(false);
+            return driverRepository.save(existing);
+        }).orElseThrow(() -> new RuntimeException("Driver not found"));
+
     }
 }

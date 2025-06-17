@@ -44,9 +44,8 @@ public class DataInitializer implements CommandLineRunner {
             admin.setPassword(passwordEncoder.encode("root"));
             admin.setRegistrationDate(LocalDateTime.now());
 
-            Role role = roleRepository.findByName("ADMIN")
-                    .orElseThrow(() -> new RuntimeException("Role ADMIN not found"));
-            admin.setRoles(Collections.singletonList(role));
+            List<Role> allRoles = roleRepository.findAll();
+            admin.setRoles(allRoles);
 
             userRepository.save(admin);
         }

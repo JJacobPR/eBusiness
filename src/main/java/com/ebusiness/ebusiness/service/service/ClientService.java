@@ -16,6 +16,8 @@ public interface ClientService {
 
     boolean existsByEmail(String email);
 
+    boolean existsByUsername(String username);
+
     Client createClient(Client client);
 
     Client registerClient(RegisterClientDto registerClientDto);

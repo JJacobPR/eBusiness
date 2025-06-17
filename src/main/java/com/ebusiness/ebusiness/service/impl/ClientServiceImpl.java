@@ -6,6 +6,7 @@ import com.ebusiness.ebusiness.entity.Role;
 import com.ebusiness.ebusiness.repository.ClientRepository;
 import com.ebusiness.ebusiness.service.service.ClientService;
 import com.ebusiness.ebusiness.service.service.RoleService;
+import com.ebusiness.ebusiness.service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,14 @@ public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
 
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, RoleService roleService, PasswordEncoder passwordEncoder) {
+    public ClientServiceImpl(ClientRepository clientRepository, RoleService roleService, PasswordEncoder passwordEncoder, UserService userService) {
         this.clientRepository = clientRepository;
         this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
+        this.userService = userService;
     }
 
     @Override
@@ -45,6 +48,11 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    public boolean existsByUsername(String username) {
+        return clientRepository.existsByUsername(username);
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         return clientRepository.existsByEmail(email);
     }
@@ -54,17 +62,21 @@ public class ClientServiceImpl implements ClientService {
         return clientRepository.save(client);
     }
 
-    public Client registerClient(RegisterClientDto dto) {
-        if (clientRepository.existsByEmail(dto.getEmail())) {
+    public Client registerClient(RegisterClientDto registerClientDto) {
+        if (userService.existsByEmail(registerClientDto.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
 
+        if (userService.existsByUsername(registerClientDto.getUsername())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+
         Client client = new Client();
-        client.setUsername(dto.getUsername());
-        client.setEmail(dto.getEmail());
-        client.setPassword(passwordEncoder.encode(dto.getPassword()));
-        client.setPhone(dto.getPhone());
-        client.setAddress(dto.getAddress());
+        client.setUsername(registerClientDto.getUsername());
+        client.setEmail(registerClientDto.getEmail());
+        client.setPassword(passwordEncoder.encode(registerClientDto.getPassword()));
+        client.setPhone(registerClientDto.getPhone());
+        client.setAddress(registerClientDto.getAddress());
         client.setRegistrationDate(LocalDateTime.now());
 
         Role role = roleService.getRoleByName("CLIENT")

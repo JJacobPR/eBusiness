@@ -17,10 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -79,6 +76,26 @@ public class AuthController {
         try {
             driverService.registerDriver(registerDriverDto);
             return ResponseEntity.ok("Driver successfully registered!");
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @PutMapping("admin/verify-driver")
+    public ResponseEntity<String> verifyDriver(@RequestBody VerificationDto verificationDto) {
+        try {
+            driverService.verifyDriver(verificationDto.getEmail());
+            return ResponseEntity.ok("Driver successfully verified!");
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @PutMapping("admin/block-driver")
+    public ResponseEntity<String> blockDriver(@RequestBody VerificationDto verificationDto) {
+        try {
+            driverService.blockDriver(verificationDto.getEmail());
+            return ResponseEntity.ok("Driver blocked    !");
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }

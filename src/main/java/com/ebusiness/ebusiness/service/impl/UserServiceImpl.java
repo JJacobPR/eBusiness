@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +49,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean existsByUsername(String username) {return userRepository.existsByUsername(username);}
+
+    @Override
     public UserEntity createUser(UserEntity user) {
         return userRepository.save(user);
     }
@@ -59,17 +61,20 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Email already exists");
         }
 
+        if (userRepository.existsByUsername(registerDto.getUsername())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+
         UserEntity admin = new UserEntity();
         admin.setUsername(registerDto.getUsername());
         admin.setEmail(registerDto.getEmail());
         admin.setPassword(passwordEncoder.encode(registerDto.getPassword()));
         admin.setRegistrationDate(LocalDateTime.now());
 
-        Role role = roleService.getRoleByName("ADMIN")
-                .orElseThrow(() -> new RuntimeException("Role not found"));
-        admin.setRoles(Collections.singletonList(role));
+        List<Role> allRoles = roleService.getAllRoles();
+        admin.setRoles(allRoles);
 
-        return createUser(admin);
+       return userRepository.save(admin);
     }
 
     @Override

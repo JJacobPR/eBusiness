@@ -14,6 +14,8 @@ public interface DriverService {
 
     Optional<Driver> getDriverByEmail(String email);
 
+    boolean existsByUsername(String username);
+
     boolean existsByEmail(String email);
 
     Driver createDriver(Driver driver);
@@ -23,4 +25,8 @@ public interface DriverService {
     Driver updateDriver(Integer id, Driver updatedDriver);
 
     void deleteDriver(Integer id);
+
+    void verifyDriver(String email);
+
+    void blockDriver(String email);
 }

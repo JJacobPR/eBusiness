@@ -31,7 +31,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/trackings").authenticated()
+                                .requestMatchers("/driver/**").hasRole("DRIVER")
+                                .requestMatchers("/client/**").hasRole("CLIENT")
+                                .requestMatchers("/auth/register/admin").hasRole("ADMIN")
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/auth/admin/**").hasRole("ADMIN")
                                 .anyRequest().permitAll());
 
         http.addFilterBefore(JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
