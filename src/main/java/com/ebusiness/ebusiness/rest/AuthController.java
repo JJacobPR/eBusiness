@@ -33,14 +33,10 @@ public class AuthController {
     private final UserService userService;
     private final ClientService clientService;
     private final DriverService driverService;
-    private final RoleService roleService;
-    private final PasswordEncoder passwordEncoder;
     private final TokenGenerator tokenGenerator;
 
-    AuthController(AuthenticationManager authenticationManager, RoleService roleService, PasswordEncoder passwordEncoder, TokenGenerator tokenGenerator, ClientService clientService, DriverService driverService, UserService userService) {
+    AuthController(AuthenticationManager authenticationManager, TokenGenerator tokenGenerator, ClientService clientService, DriverService driverService, UserService userService) {
         this.authenticationManager = authenticationManager;
-        this.roleService = roleService;
-        this.passwordEncoder = passwordEncoder;
         this.tokenGenerator = tokenGenerator;
         this.clientService = clientService;
         this.driverService = driverService;
@@ -55,83 +51,36 @@ public class AuthController {
 
         AuthResponseDto authResponseDto = new AuthResponseDto(token);
 
-        return new ResponseEntity<>(authResponseDto, HttpStatus.OK);
+        return ResponseEntity.ok(authResponseDto);
     }
 
     @PostMapping("register/admin")
     public ResponseEntity<String> registerAdmin(@RequestBody RegisterDto registerDto) {
-
-        if (clientService.existsByEmail(registerDto.getEmail())) {
-            return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
+        try {
+            userService.registerAdmin(registerDto);
+            return ResponseEntity.ok("Admin successfully registered!");
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
         }
-
-        UserEntity user = new UserEntity();
-        user.setUsername(registerDto.getUsername());
-        user.setEmail(registerDto.getEmail());
-        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
-  ;
-        //Generate current datetime
-        user.setRegistrationDate(LocalDateTime.now());
-
-        Role role = roleService.getRoleByName("ADMIN").get();
-        user.setRoles(Collections.singletonList(role));
-
-        userService.createUser(user);
-
-        return new ResponseEntity<>("Client successfully registered!", HttpStatus.OK);
     }
-
-
 
     @PostMapping("register/client")
     public ResponseEntity<String> registerClient(@RequestBody RegisterClientDto registerClientDto) {
-
-        if (clientService.existsByEmail(registerClientDto.getEmail())) {
-            return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
+        try {
+            clientService.registerClient(registerClientDto);
+            return ResponseEntity.ok("Client successfully registered!");
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
         }
-
-        Client client = new Client();
-        client.setUsername(registerClientDto.getUsername());
-        client.setEmail(registerClientDto.getEmail());
-        client.setPassword(passwordEncoder.encode(registerClientDto.getPassword()));
-        client.setPhone(registerClientDto.getPhone());
-        client.setAddress(registerClientDto.getAddress());
-
-        //Generate current datetime
-        client.setRegistrationDate(LocalDateTime.now());
-
-        Role role = roleService.getRoleByName("CLIENT").get();
-        client.setRoles(Collections.singletonList(role));
-
-        clientService.createClient(client);
-
-        return new ResponseEntity<>("Client successfully registered!", HttpStatus.OK);
     }
 
     @PostMapping("register/driver")
     public ResponseEntity<String> registerDriver(@RequestBody RegisterDriverDto registerDriverDto) {
-
-        if (clientService.existsByEmail(registerDriverDto.getEmail())) {
-            return new ResponseEntity<>("Email already exists", HttpStatus.BAD_REQUEST);
+        try {
+            driverService.registerDriver(registerDriverDto);
+            return ResponseEntity.ok("Driver successfully registered!");
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
         }
-
-        Driver driver = new Driver();
-        driver.setUsername(registerDriverDto.getUsername());
-        driver.setEmail(registerDriverDto.getEmail());
-        driver.setPassword(passwordEncoder.encode(registerDriverDto.getPassword()));
-        driver.setPhone(registerDriverDto.getPhone());
-        driver.setVehicleDetails(registerDriverDto.getVehicleDetails());
-        driver.setAvailabilityStatus(false);
-        driver.setVerificationStatus(false);
-
-        //Generate current datetime
-        driver.setRegistrationDate(LocalDateTime.now());
-
-        Role role = roleService.getRoleByName("DRIVER").get();
-        driver.setRoles(Collections.singletonList(role));
-
-        driverService.createDriver(driver);
-
-        return new ResponseEntity<>("Driver successfully registered!", HttpStatus.OK);
     }
 }

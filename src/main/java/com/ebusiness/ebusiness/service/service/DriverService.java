@@ -1,5 +1,6 @@
 package com.ebusiness.ebusiness.service.service;
 
+import com.ebusiness.ebusiness.dto.RegisterDriverDto;
 import com.ebusiness.ebusiness.entity.Driver;
 
 import java.util.List;
@@ -16,6 +17,8 @@ public interface DriverService {
     boolean existsByEmail(String email);
 
     Driver createDriver(Driver driver);
+
+    Driver registerDriver(RegisterDriverDto registerDriverDto);
 
     Driver updateDriver(Integer id, Driver updatedDriver);
 

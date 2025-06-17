@@ -1,5 +1,6 @@
 package com.ebusiness.ebusiness.service.service;
 
+import com.ebusiness.ebusiness.dto.RegisterClientDto;
 import com.ebusiness.ebusiness.entity.Client;
 
 import java.util.List;
@@ -16,6 +17,8 @@ public interface ClientService {
     boolean existsByEmail(String email);
 
     Client createClient(Client client);
+
+    Client registerClient(RegisterClientDto registerClientDto);
 
     Client updateClient(Integer id, Client updatedClient);
 

@@ -16,6 +16,10 @@ public class Role {
 
     public Role() {}
 
+    public Role(String name) {
+        setName(name);
+    }
+
     public int getRole_id() {
         return role_id;
     }

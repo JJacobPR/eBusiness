@@ -1,5 +1,6 @@
 package com.ebusiness.ebusiness.service.service;
 
+import com.ebusiness.ebusiness.dto.RegisterDto;
 import com.ebusiness.ebusiness.entity.UserEntity;
 
 import java.util.List;
@@ -16,6 +17,8 @@ public interface UserService {
     boolean existsByEmail(String email);
 
     UserEntity createUser(UserEntity user);
+
+    UserEntity registerAdmin(RegisterDto registerDto);
 
     UserEntity updateUser(Integer id, UserEntity updatedUser);
 
