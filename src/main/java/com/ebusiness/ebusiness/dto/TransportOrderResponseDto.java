@@ -1,5 +1,6 @@
 package com.ebusiness.ebusiness.dto;
 
+import com.ebusiness.ebusiness.config.TransportOrderStatus;
 import com.ebusiness.ebusiness.entity.TransportOrder;
 
 import java.time.LocalDateTime;
@@ -13,9 +14,8 @@ public class TransportOrderResponseDto {
     private String originAddress;
     private String destinationAddress;
     private double price;
-    private String status;
+    private TransportOrderStatus status;
     private LocalDateTime createdAt;
-    private String qrCode;
     private List<PackageResponseDto> packages;
 
     public TransportOrderResponseDto(TransportOrder transportOrder) {
@@ -27,7 +27,6 @@ public class TransportOrderResponseDto {
         this.price = transportOrder.getPrice();
         this.status = transportOrder.getStatus();
         this.createdAt = transportOrder.getCreatedAt();
-        this.qrCode = transportOrder.getQrCode();
         this.packages = transportOrder.getPackages().stream()
                 .map(PackageResponseDto::new)
                 .toList();
@@ -82,11 +81,11 @@ public class TransportOrderResponseDto {
         this.price = price;
     }
 
-    public String getStatus() {
+    public TransportOrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TransportOrderStatus status) {
         this.status = status;
     }
 
@@ -96,15 +95,6 @@ public class TransportOrderResponseDto {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-
-    public String getQrCode() {
-        return qrCode;
-    }
-
-    public void setQrCode(String qrCode) {
-        this.qrCode = qrCode;
     }
 
     public List<PackageResponseDto> getPackages() {

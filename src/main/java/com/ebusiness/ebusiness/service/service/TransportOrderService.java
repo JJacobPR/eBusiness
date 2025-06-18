@@ -1,5 +1,6 @@
 package com.ebusiness.ebusiness.service.service;
 
+import com.ebusiness.ebusiness.config.TransportOrderStatus;
 import com.ebusiness.ebusiness.dto.PackageCreateDto;
 import com.ebusiness.ebusiness.dto.TransportOrderCreateDto;
 import com.ebusiness.ebusiness.entity.TransportOrder;
@@ -13,6 +14,8 @@ public interface TransportOrderService {
     TransportOrder createTransportOrder(TransportOrder transportOrder);
     TransportOrder createTransportOrder(String email, TransportOrderCreateDto dto);
     TransportOrder updateTransportOrder(Integer id, TransportOrder updatedTransportOrder);
+    TransportOrder updateTransportOrderStatus(Integer id, TransportOrderStatus status);
+    String createQRCode(Integer id);
     double calculateCost(List<PackageCreateDto> packages);
     void deleteTransportOrder(Integer id);
 }

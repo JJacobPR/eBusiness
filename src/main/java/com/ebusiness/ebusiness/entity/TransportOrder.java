@@ -1,5 +1,6 @@
 package com.ebusiness.ebusiness.entity;
 
+import com.ebusiness.ebusiness.config.TransportOrderStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,17 +31,15 @@ public class TransportOrder {
     @Column(name = "price", nullable = false)
     private double price;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status;
+    private TransportOrderStatus status;
 
     @Column(name = "pickup_time")
     private LocalDateTime pickupTime;
 
     @Column(name = "delivery_time")
     private LocalDateTime deliveryTime;
-
-    @Column(name = "qr_code", columnDefinition = "TEXT")
-    private String qrCode;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -50,7 +49,7 @@ public class TransportOrder {
 
     public TransportOrder() {}
 
-    public TransportOrder(int orderID, Client client, Driver driver, String originAddress, String destinationAddress, double price, String status, LocalDateTime pickupTime, LocalDateTime deliveryTime, String qrCode, LocalDateTime createdAt) {
+    public TransportOrder(int orderID, Client client, Driver driver, String originAddress, String destinationAddress, double price, TransportOrderStatus status, LocalDateTime pickupTime, LocalDateTime deliveryTime, String qrCode, LocalDateTime createdAt) {
         this.orderID = orderID;
         this.client = client;
         this.driver = driver;
@@ -60,7 +59,6 @@ public class TransportOrder {
         this.status = status;
         this.pickupTime = pickupTime;
         this.deliveryTime = deliveryTime;
-        this.qrCode = qrCode;
         this.createdAt = createdAt;
     }
 
@@ -112,11 +110,11 @@ public class TransportOrder {
         this.price = price;
     }
 
-    public String getStatus() {
+    public TransportOrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TransportOrderStatus status) {
         this.status = status;
     }
 
@@ -134,14 +132,6 @@ public class TransportOrder {
 
     public void setDeliveryTime(LocalDateTime deliveryTime) {
         this.deliveryTime = deliveryTime;
-    }
-
-    public String getQrCode() {
-        return qrCode;
-    }
-
-    public void setQrCode(String qrCode) {
-        this.qrCode = qrCode;
     }
 
     public LocalDateTime getCreatedAt() {

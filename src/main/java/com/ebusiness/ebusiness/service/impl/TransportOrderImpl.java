@@ -1,5 +1,6 @@
 package com.ebusiness.ebusiness.service.impl;
 
+import com.ebusiness.ebusiness.config.TransportOrderStatus;
 import com.ebusiness.ebusiness.dto.PackageCreateDto;
 import com.ebusiness.ebusiness.dto.TransportOrderCreateDto;
 import com.ebusiness.ebusiness.entity.Client;
@@ -11,9 +12,14 @@ import com.ebusiness.ebusiness.repository.DriverRepository;
 import com.ebusiness.ebusiness.repository.PackageRepository;
 import com.ebusiness.ebusiness.repository.TransportOrderRepository;
 import com.ebusiness.ebusiness.service.service.TransportOrderService;
+import com.ebusiness.ebusiness.utils.QrCodeGenerator;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,10 +71,9 @@ public class TransportOrderImpl implements TransportOrderService {
         order.setOriginAddress(transportOrderCreateDto.getOriginAddress());
         order.setDestinationAddress(transportOrderCreateDto.getDestinationAddress());
 
-        //Add define different statuses
         //Add Transport order modification
         order.setPrice(calculateCost(transportOrderCreateDto.getPackages()));
-        order.setStatus("NEW");
+        order.setStatus(TransportOrderStatus.CREATED);
         order.setCreatedAt(LocalDateTime.now());
 
         TransportOrder savedOrder = transportOrderRepository.save(order);
@@ -105,13 +110,39 @@ public class TransportOrderImpl implements TransportOrderService {
             order.setCreatedAt(updatedTransportOrder.getCreatedAt());
             order.setPickupTime(updatedTransportOrder.getPickupTime());
             order.setDeliveryTime(updatedTransportOrder.getDeliveryTime());
-            order.setQrCode(updatedTransportOrder.getQrCode());
             order.setPackages(updatedTransportOrder.getPackages());
             return transportOrderRepository.save(order);
         }).orElseGet(() -> {
             updatedTransportOrder.setOrderID(id);
             return transportOrderRepository.save(updatedTransportOrder);
         });
+    }
+
+    @Override
+    public TransportOrder updateTransportOrderStatus(Integer id, TransportOrderStatus newStatus) {
+        return transportOrderRepository.findById(id).map(order -> {
+            if (order.getStatus() == TransportOrderStatus.DELIVERED) {
+                throw new IllegalArgumentException("Cannot set status after it has been DELIVERED");
+            }
+            order.setStatus(newStatus);
+            return transportOrderRepository.save(order);
+        }).orElseThrow(() -> new IllegalArgumentException("TransportOrder not found with id: " + id));
+    }
+
+
+    @Override
+    public String createQRCode(Integer id) {
+        try {
+            BufferedImage qrImage = QrCodeGenerator.generateQRCodeImage(id.toString());
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(qrImage, "png", baos);
+            byte[] imageBytes = baos.toByteArray();
+
+            return Base64.getEncoder().encodeToString(imageBytes);
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating QR code");
+        }
     }
 
     @Override
