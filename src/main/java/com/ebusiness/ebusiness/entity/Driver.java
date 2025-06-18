@@ -3,6 +3,7 @@ package com.ebusiness.ebusiness.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "driver")
@@ -19,6 +20,9 @@ public class Driver extends UserEntity {
 
     @Column(name = "verification_status")
     private Boolean verificationStatus;
+
+    @OneToMany(mappedBy = "driver", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    private List<TransportOrder> transportOrders;
 
     public Driver() {}
 
@@ -67,5 +71,13 @@ public class Driver extends UserEntity {
 
     public void setVerificationStatus(Boolean verificationStatus) {
         this.verificationStatus = verificationStatus;
+    }
+
+    public List<TransportOrder> getTransportOrders() {
+        return transportOrders;
+    }
+
+    public void setTransportOrders(List<TransportOrder> transportOrders) {
+        this.transportOrders = transportOrders;
     }
 }

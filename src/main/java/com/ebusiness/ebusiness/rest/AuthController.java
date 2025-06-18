@@ -1,26 +1,19 @@
 package com.ebusiness.ebusiness.rest;
 
 import com.ebusiness.ebusiness.dto.*;
-import com.ebusiness.ebusiness.entity.Client;
-import com.ebusiness.ebusiness.entity.Driver;
-import com.ebusiness.ebusiness.entity.Role;
-import com.ebusiness.ebusiness.entity.UserEntity;
 import com.ebusiness.ebusiness.security.TokenGenerator;
 import com.ebusiness.ebusiness.service.service.ClientService;
 import com.ebusiness.ebusiness.service.service.DriverService;
-import com.ebusiness.ebusiness.service.service.RoleService;
 import com.ebusiness.ebusiness.service.service.UserService;
-import org.springframework.http.HttpStatus;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
 
 @RestController
 @RequestMapping("/auth")
@@ -40,6 +33,7 @@ public class AuthController {
         this.userService = userService;
     }
 
+
     @PostMapping("login")
     public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword()));
@@ -51,6 +45,12 @@ public class AuthController {
         return ResponseEntity.ok(authResponseDto);
     }
 
+    @Operation(
+            description = """
+            Access restricted to users with roles: ADMIN.
+            """,
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
     @PostMapping("register/admin")
     public ResponseEntity<String> registerAdmin(@RequestBody RegisterDto registerDto) {
         try {
@@ -81,6 +81,12 @@ public class AuthController {
         }
     }
 
+    @Operation(
+            description = """
+            Access restricted to users with roles: ADMIN.
+            """,
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
     @PutMapping("admin/verify-driver")
     public ResponseEntity<String> verifyDriver(@RequestBody VerificationDto verificationDto) {
         try {
@@ -91,11 +97,17 @@ public class AuthController {
         }
     }
 
+    @Operation(
+            description = """
+            Access restricted to users with roles: ADMIN.
+            """,
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
     @PutMapping("admin/block-driver")
     public ResponseEntity<String> blockDriver(@RequestBody VerificationDto verificationDto) {
         try {
             driverService.blockDriver(verificationDto.getEmail());
-            return ResponseEntity.ok("Driver blocked    !");
+            return ResponseEntity.ok("Driver blocked!");
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }

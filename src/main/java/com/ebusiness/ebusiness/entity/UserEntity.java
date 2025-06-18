@@ -14,7 +14,7 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private int user_id;
+    private int userID;
 
     @Column(name = "username", unique = true, nullable = false)
     private String username;
@@ -28,26 +28,26 @@ public class UserEntity {
     @Column(name = "registration_date", nullable = false)
     private LocalDateTime registrationDate;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id"))
     private List<Role> roles = new ArrayList<>();
 
     public UserEntity() {}
 
-    public UserEntity(LocalDateTime registrationDate, String password, String email, String username, int user_id) {
+    public UserEntity(LocalDateTime registrationDate, String password, String email, String username, int userID) {
         this.registrationDate = registrationDate;
         this.password = password;
         this.email = email;
         this.username = username;
-        this.user_id = user_id;
+        this.userID = userID;
     }
 
-    public int getUser_id() {
-        return user_id;
+    public int getUserID() {
+        return userID;
     }
 
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
+    public void setUserID(int userID) {
+        this.userID = userID;
     }
 
     public String getUsername() {

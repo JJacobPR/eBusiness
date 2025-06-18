@@ -1,8 +1,8 @@
 package com.ebusiness.ebusiness.entity;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "client")
@@ -13,6 +13,9 @@ public class Client extends UserEntity {
 
     @Column(name = "address", nullable = false)
     private String address;
+
+    @OneToMany(mappedBy = "client", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    private List<TransportOrder> transportOrders;
 
     public Client() {}
 
@@ -41,5 +44,13 @@ public class Client extends UserEntity {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public List<TransportOrder> getTransportOrders() {
+        return transportOrders;
+    }
+
+    public void setTransportOrders(List<TransportOrder> transportOrders) {
+        this.transportOrders = transportOrders;
     }
 }
