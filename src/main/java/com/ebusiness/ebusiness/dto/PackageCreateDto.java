@@ -50,7 +50,7 @@ public class PackageCreateDto {
         this.weight = weight;
     }
 
-    public Boolean getIsFragile() {
+    public Boolean isFragile() {
         return isFragile;
     }
 

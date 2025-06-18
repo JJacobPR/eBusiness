@@ -1,5 +1,6 @@
 package com.ebusiness.ebusiness.service.impl;
 
+import com.ebusiness.ebusiness.dto.PackageCreateDto;
 import com.ebusiness.ebusiness.dto.TransportOrderCreateDto;
 import com.ebusiness.ebusiness.entity.Client;
 import com.ebusiness.ebusiness.entity.Driver;
@@ -64,9 +65,9 @@ public class TransportOrderImpl implements TransportOrderService {
         order.setOriginAddress(transportOrderCreateDto.getOriginAddress());
         order.setDestinationAddress(transportOrderCreateDto.getDestinationAddress());
 
-        //Add Generate price and define different statuses
+        //Add define different statuses
         //Add Transport order modification
-        order.setPrice(20);
+        order.setPrice(calculateCost(transportOrderCreateDto.getPackages()));
         order.setStatus("NEW");
         order.setCreatedAt(LocalDateTime.now());
 
@@ -79,7 +80,7 @@ public class TransportOrderImpl implements TransportOrderService {
             pkg.setWidth(pkgDto.getWidth());
             pkg.setDepth(pkgDto.getDepth());
             pkg.setWeight(pkgDto.getWeight());
-            pkg.setFragile(pkgDto.getIsFragile());
+            pkg.setFragile(pkgDto.isFragile());
             pkg.setComment(pkgDto.getComment());
             pkg.setCreatedAt(LocalDateTime.now());
             return pkg;
@@ -111,6 +112,32 @@ public class TransportOrderImpl implements TransportOrderService {
             updatedTransportOrder.setOrderID(id);
             return transportOrderRepository.save(updatedTransportOrder);
         });
+    }
+
+    @Override
+    public double calculateCost(List<PackageCreateDto> packages) {
+        double totalCost = 0.0;
+
+        for (PackageCreateDto pkg : packages) {
+
+            double weightKg = pkg.getWeight() / 1000.0;
+
+            double volumeCm3 = pkg.getHeight() * pkg.getWidth() * pkg.getDepth();
+
+            double volumetricWeightKg = volumeCm3 / 6000.0;
+
+            double billableWeight = Math.max(weightKg, volumetricWeightKg);
+
+            double cost = billableWeight * 10.0;
+
+            if (Boolean.TRUE.equals(pkg.isFragile())) {
+                cost += 3.0; // flat fragile surcharge
+            }
+
+            totalCost += cost;
+        }
+
+        return Math.round(totalCost * 100.0) / 100.0; // Round to 2 decimals
     }
 
     @Override
