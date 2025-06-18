@@ -66,6 +66,15 @@ public class TransportOrderController {
         }
     }
 
+
+    @Operation(
+            summary = "Create a qr code",
+            description = """
+            Creates a qr code with the id of order.
+            Access restricted to users with role CLIENT.
+            """,
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
     @GetMapping("/client/order/qr/{id}")
     public ResponseEntity<String> getQRCode(@PathVariable Integer id) {
         try {
