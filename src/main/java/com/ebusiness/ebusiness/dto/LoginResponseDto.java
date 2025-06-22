@@ -1,6 +1,6 @@
 package com.ebusiness.ebusiness.dto;
 
-public class LoginDto {
+public class LoginResponseDto {
     private String email;
     private String password;
 
