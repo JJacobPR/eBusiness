@@ -12,7 +12,7 @@ public class LoginResponseDto {
     private LocalDateTime registration_date;
     private String token;
     private String tokenType = "Bearer";
-    private List<String> roles;
+    private String role;
 
     public LoginResponseDto() {
 
@@ -66,11 +66,11 @@ public class LoginResponseDto {
         this.tokenType = tokenType;
     }
 
-    public List<String> getRoles() {
-        return roles;
+    public String getRole() {
+        return role;
     }
 
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
+    public void setRole(String role) {
+        this.role = role;
     }
 }

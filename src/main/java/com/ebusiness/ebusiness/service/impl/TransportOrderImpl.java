@@ -62,19 +62,27 @@ public class TransportOrderImpl implements TransportOrderService {
         Client client = clientRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Client not found"));
 
-        Driver driver = driverRepository.findById(transportOrderCreateDto.getDriverId())
-                .orElseThrow(() -> new RuntimeException("Driver not found"));
+        Driver driver = driverRepository.findById(findAvailableDriver(transportOrderCreateDto.getOriginAddress(), transportOrderCreateDto.getDestinationAddress()))
+                .orElseThrow(() -> new RuntimeException("No available driver found"));;
 
         TransportOrder order = new TransportOrder();
         order.setClient(client);
-        order.setDriver(driver);
         order.setOriginAddress(transportOrderCreateDto.getOriginAddress());
         order.setDestinationAddress(transportOrderCreateDto.getDestinationAddress());
+        order.setPickupTime(transportOrderCreateDto.getPickupTime());
+        order.setDeliveryTime(transportOrderCreateDto.getUnloadTime());
+        order.setHelpUnload(transportOrderCreateDto.isHelpUnload());
 
         //Add Transport order modification
-        order.setPrice(calculateCost(transportOrderCreateDto.getPackages()));
+        order.setPrice(calculateCost(transportOrderCreateDto.getPackages(), transportOrderCreateDto.isHelpUnload()));
         order.setStatus(TransportOrderStatus.CREATED);
         order.setCreatedAt(LocalDateTime.now());
+        order.setUpdatedAt(LocalDateTime.now());
+
+
+        order.setDriver(driver);
+        driver.setAvailabilityStatus(false);
+        driverRepository.save(driver);
 
         TransportOrder savedOrder = transportOrderRepository.save(order);
 
@@ -146,33 +154,50 @@ public class TransportOrderImpl implements TransportOrderService {
     }
 
     @Override
-    public double calculateCost(List<PackageCreateDto> packages) {
-        double totalCost = 0.0;
+    public double calculateCost(List<PackageCreateDto> packages, boolean helpUnload) {
+        double totalCost = 10.0; // Base cost
 
         for (PackageCreateDto pkg : packages) {
-
             double weightKg = pkg.getWeight() / 1000.0;
-
             double volumeCm3 = pkg.getHeight() * pkg.getWidth() * pkg.getDepth();
-
             double volumetricWeightKg = volumeCm3 / 6000.0;
 
             double billableWeight = Math.max(weightKg, volumetricWeightKg);
-
             double cost = billableWeight * 10.0;
 
             if (Boolean.TRUE.equals(pkg.isFragile())) {
-                cost += 3.0; // flat fragile surcharge
+                cost += 3.0; // Flat fragile surcharge
             }
 
             totalCost += cost;
         }
 
-        return Math.round(totalCost * 100.0) / 100.0; // Round to 2 decimals
+        if (helpUnload) {
+            totalCost = totalCost + packages.size() * 5.0;
+        }
+
+        return Math.round(totalCost * 100.0) / 100.0; // Round to 2 decimal places
     }
+
 
     @Override
     public void deleteTransportOrder(Integer id) {
         transportOrderRepository.deleteById(id);
     }
+
+    public Integer findAvailableDriver(String originAddress, String destinationAddress) {
+        return driverRepository.findAll().stream()
+                .filter(Driver::getVerificationStatus)
+                .filter(driver -> !driver.getBlocked())
+                .filter(Driver::getAvailabilityStatus)
+                .filter(driver -> {
+                    String city = driver.getCity().toLowerCase();
+                    return originAddress.toLowerCase().contains(city) ||
+                            destinationAddress.toLowerCase().contains(city);
+                })
+                .map(Driver::getUserID)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No available driver found for the provided addresses."));
+    }
+
 }

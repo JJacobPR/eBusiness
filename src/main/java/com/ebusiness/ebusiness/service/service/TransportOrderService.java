@@ -16,6 +16,6 @@ public interface TransportOrderService {
     TransportOrder updateTransportOrder(Integer id, TransportOrder updatedTransportOrder);
     TransportOrder updateTransportOrderStatus(Integer id, TransportOrderStatus status);
     String createQRCode(Integer id);
-    double calculateCost(List<PackageCreateDto> packages);
+    double calculateCost(List<PackageCreateDto> packages, boolean helpUnload);
     void deleteTransportOrder(Integer id);
 }

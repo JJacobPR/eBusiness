@@ -29,4 +29,6 @@ public interface DriverService {
     void verifyDriver(String email);
 
     void blockDriver(String email);
+
+    void unblockDriver(String email);
 }

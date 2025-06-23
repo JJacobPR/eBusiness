@@ -13,25 +13,32 @@ public class TransportOrderResponseDto {
     private int driverID;
     private String originAddress;
     private String destinationAddress;
+    private LocalDateTime pickupTime;
+    private LocalDateTime unloadTime;
+    private boolean helpUnload;
     private double price;
     private TransportOrderStatus status;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private List<PackageResponseDto> packages;
 
-    public TransportOrderResponseDto(TransportOrder transportOrder) {
-        this.orderID = transportOrder.getOrderID();
-        this.clientID = transportOrder.getClient().getUserID();
-        this.driverID = transportOrder.getDriver().getUserID();
-        this.originAddress = transportOrder.getOriginAddress();
-        this.destinationAddress = transportOrder.getDestinationAddress();
-        this.price = transportOrder.getPrice();
-        this.status = transportOrder.getStatus();
-        this.createdAt = transportOrder.getCreatedAt();
-        this.packages = transportOrder.getPackages().stream()
+    public TransportOrderResponseDto(TransportOrder order) {
+        this.orderID = order.getOrderID();
+        this.clientID = order.getClient().getUserID();
+        this.driverID = order.getDriver().getUserID();
+        this.originAddress = order.getOriginAddress();
+        this.destinationAddress = order.getDestinationAddress();
+        this.pickupTime = order.getPickupTime();
+        this.unloadTime = order.getDeliveryTime();
+        this.helpUnload = order.isHelpUnload();
+        this.price = order.getPrice();
+        this.status = order.getStatus();
+        this.createdAt = order.getCreatedAt();
+        this.updatedAt = order.getUpdatedAt();
+        this.packages = order.getPackages().stream()
                 .map(PackageResponseDto::new)
                 .toList();
     }
-
 
     public int getOrderID() {
         return orderID;
@@ -73,6 +80,30 @@ public class TransportOrderResponseDto {
         this.destinationAddress = destinationAddress;
     }
 
+    public LocalDateTime getPickupTime() {
+        return pickupTime;
+    }
+
+    public void setPickupTime(LocalDateTime pickupTime) {
+        this.pickupTime = pickupTime;
+    }
+
+    public LocalDateTime getUnloadTime() {
+        return unloadTime;
+    }
+
+    public void setUnloadTime(LocalDateTime unloadTime) {
+        this.unloadTime = unloadTime;
+    }
+
+    public boolean isHelpUnload() {
+        return helpUnload;
+    }
+
+    public void setHelpUnload(boolean helpUnload) {
+        this.helpUnload = helpUnload;
+    }
+
     public double getPrice() {
         return price;
     }
@@ -95,6 +126,14 @@ public class TransportOrderResponseDto {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public List<PackageResponseDto> getPackages() {

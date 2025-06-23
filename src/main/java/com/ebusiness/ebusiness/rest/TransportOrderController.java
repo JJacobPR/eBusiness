@@ -38,7 +38,6 @@ public class TransportOrderController {
             Authentication authentication) {
         try {
             String email = authentication.getName();
-            System.out.println(authentication.getAuthorities());
             TransportOrder order = transportOrderService.createTransportOrder(email, transportOrderCreateDto);
             TransportOrderResponseDto responseDto = new TransportOrderResponseDto(order);
             return ResponseEntity.ok(responseDto);
@@ -59,7 +58,7 @@ public class TransportOrderController {
     public ResponseEntity<Double> getCost(
             @RequestBody TransportOrderCostDto transportOrderCostDto) {
         try {
-            double cost = transportOrderService.calculateCost(transportOrderCostDto.getPackages());
+            double cost = transportOrderService.calculateCost(transportOrderCostDto.getPackages(), transportOrderCostDto.isHelpUnload());
             return ResponseEntity.ok(cost);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().build();

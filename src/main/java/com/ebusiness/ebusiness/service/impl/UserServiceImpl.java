@@ -171,6 +171,9 @@ public class UserServiceImpl implements UserService {
         dto.setUser_id(user.getUserID());
         dto.setRegistration_date(user.getRegistrationDate());
         dto.setToken(token);
-        dto.setRoles(roles);
+
+        // Prioritize ADMIN role if present
+        String role = roles.contains("ADMIN") ? "ADMIN" : roles.getFirst();
+        dto.setRole(role);
     }
 }

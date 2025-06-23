@@ -19,7 +19,7 @@ public class TransportOrder {
     private Client client;
 
     @ManyToOne
-    @JoinColumn(name = "driver_id", nullable = false)
+    @JoinColumn(name = "driver_id")
     private Driver driver;
 
     @Column(name = "origin_address", nullable = false)
@@ -41,15 +41,21 @@ public class TransportOrder {
     @Column(name = "delivery_time")
     private LocalDateTime deliveryTime;
 
+    @Column(name = "help_unload")
+    private boolean helpUnload;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "transportOrder", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Package> packages;
 
     public TransportOrder() {}
 
-    public TransportOrder(int orderID, Client client, Driver driver, String originAddress, String destinationAddress, double price, TransportOrderStatus status, LocalDateTime pickupTime, LocalDateTime deliveryTime, String qrCode, LocalDateTime createdAt) {
+    public TransportOrder(int orderID, Client client, Driver driver, String originAddress, String destinationAddress, double price, TransportOrderStatus status, LocalDateTime pickupTime, LocalDateTime deliveryTime, boolean helpUnload, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.orderID = orderID;
         this.client = client;
         this.driver = driver;
@@ -59,7 +65,9 @@ public class TransportOrder {
         this.status = status;
         this.pickupTime = pickupTime;
         this.deliveryTime = deliveryTime;
+        this.helpUnload = helpUnload;
         this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public int getOrderID() {
@@ -134,12 +142,28 @@ public class TransportOrder {
         this.deliveryTime = deliveryTime;
     }
 
+    public boolean isHelpUnload() {
+        return helpUnload;
+    }
+
+    public void setHelpUnload(boolean helpUnload) {
+        this.helpUnload = helpUnload;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public List<Package> getPackages() {

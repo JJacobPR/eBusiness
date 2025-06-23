@@ -24,6 +24,9 @@ public class Driver extends UserEntity {
     @Column(name = "verification_status")
     private Boolean verificationStatus;
 
+    @Column(name = "blocked", nullable = false)
+    private Boolean blocked;
+
     @OneToMany(mappedBy = "driver", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     private List<TransportOrder> transportOrders;
 
@@ -75,6 +78,14 @@ public class Driver extends UserEntity {
 
     public void setVerificationStatus(Boolean verificationStatus) {
         this.verificationStatus = verificationStatus;
+    }
+
+    public Boolean getBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(Boolean blocked) {
+        this.blocked = blocked;
     }
 
     public List<TransportOrder> getTransportOrders() {

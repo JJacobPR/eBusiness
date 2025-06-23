@@ -82,6 +82,7 @@ public class DriverServiceImpl implements DriverService {
         driver.setVehicleDetails(registerDriverDto.getVehicleDetails());
         driver.setAvailabilityStatus(false);
         driver.setVerificationStatus(false);
+        driver.setBlocked(false);
         driver.setRegistrationDate(LocalDateTime.now());
 
         Role role = roleService.getRoleByName("DRIVER")
@@ -119,6 +120,7 @@ public class DriverServiceImpl implements DriverService {
 
         driverRepository.findByEmail(email).map(existing -> {
             existing.setVerificationStatus(true);
+            existing.setAvailabilityStatus(true);
             return driverRepository.save(existing);
         }).orElseThrow(() -> new RuntimeException("Driver not found"));
 
@@ -128,9 +130,21 @@ public class DriverServiceImpl implements DriverService {
     public void blockDriver(String email) {
 
         driverRepository.findByEmail(email).map(existing -> {
-            existing.setVerificationStatus(false);
+            existing.setBlocked(true);
             return driverRepository.save(existing);
         }).orElseThrow(() -> new RuntimeException("Driver not found"));
 
     }
+
+    @Override
+    public void unblockDriver(String email) {
+
+        driverRepository.findByEmail(email).map(existing -> {
+            existing.setBlocked(false);
+            return driverRepository.save(existing);
+        }).orElseThrow(() -> new RuntimeException("Driver not found"));
+
+    }
+
+
 }
