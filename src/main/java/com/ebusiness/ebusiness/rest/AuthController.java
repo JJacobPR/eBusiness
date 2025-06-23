@@ -113,7 +113,7 @@ public class AuthController {
             """,
             security = @SecurityRequirement(name = "bearerAuth")
     )
-    @PutMapping("auth/admin/verify-driver")
+    @PutMapping("admin/verify-driver")
     public ResponseEntity<String> verifyDriver(@RequestBody VerificationDto verificationDto) {
         try {
             driverService.verifyDriver(verificationDto.getEmail());
@@ -129,7 +129,7 @@ public class AuthController {
             """,
             security = @SecurityRequirement(name = "bearerAuth")
     )
-    @PutMapping("auth/admin/block-driver")
+    @PutMapping("admin/block-driver")
     public ResponseEntity<String> blockDriver(@RequestBody VerificationDto verificationDto) {
         try {
             driverService.blockDriver(verificationDto.getEmail());
@@ -145,7 +145,7 @@ public class AuthController {
             """,
             security = @SecurityRequirement(name = "bearerAuth")
     )
-    @PutMapping("auth/admin/unblock-driver")
+    @PutMapping("admin/unblock-driver")
     public ResponseEntity<String> unblockDriver(@RequestBody VerificationDto verificationDto) {
         try {
             driverService.unblockDriver(verificationDto.getEmail());
