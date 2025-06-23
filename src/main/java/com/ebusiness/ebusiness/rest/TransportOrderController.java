@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 public class TransportOrderController {
 
@@ -31,6 +33,29 @@ public class TransportOrderController {
         TransportOrderResponseDto dto = transportOrderService.getOrderResponseDtoById(orderId);
         return ResponseEntity.ok(dto);
     }
+
+    @GetMapping("/client/orders")
+    public ResponseEntity<List<TransportOrderResponseDto>> getClientOrders(Authentication authentication) {
+        String email = authentication.getName();
+        List<TransportOrderResponseDto> orders = transportOrderService.getActiveOrdersForClient(email);
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/client/orders-history")
+    public ResponseEntity<List<TransportOrderResponseDto>> getClientHistory(Authentication authentication) {
+        String email = authentication.getName();
+        List<TransportOrderResponseDto> orders = transportOrderService.getHistoryForClient(email);
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/driver/orders")
+    public ResponseEntity<List<TransportOrderResponseDto>> getDriverOrders(Authentication authentication) {
+        String email = authentication.getName();
+        List<TransportOrderResponseDto> orders = transportOrderService.getActiveOrdersForClient(email);
+        return ResponseEntity.ok(orders);
+    }
+
+
 
     @Operation(
             summary = "Create a new transport order",
@@ -117,42 +142,62 @@ public class TransportOrderController {
     @Operation(
             summary = "Update transport order status by driver",
             description = """
-        Updates the status of a transport order. Default status is IN_TRANSIT.
-        Optional status codes:
-        0 - ON_HOLD,
-        -1 - CANCELLED.
-        Access restricted to users with role DRIVER.
+        Updates the status of a transport order by status name.
+        If no status name is provided, defaults to DELIVERED.
+        Allowed status names (case-insensitive):
+        CREATED, SCHEDULED, IN_TRANSIT, DELIVERED, CANCELLED, ON_HOLD.
+        Access restricted to users with role Drver.
         """,
             security = @SecurityRequirement(name = "bearerAuth")
     )
+
     @PutMapping("/driver/order/status/{id}")
     public ResponseEntity<String> updateStatusDriver(@PathVariable Integer id,
-                                                     @RequestParam(required = false) Integer statusCode) {
+                                                     @RequestParam(required = false) String statusName) {
         try {
             TransportOrderStatus status;
-            if (statusCode == null) {
-                status = TransportOrderStatus.IN_TRANSIT;
-            } else if (statusCode == 0) {
-                status = TransportOrderStatus.ON_HOLD;
-            } else if (statusCode == -1) {
-                status = TransportOrderStatus.CANCELLED;
+            if (statusName == null) {
+                status = TransportOrderStatus.DELIVERED;
             } else {
-                return ResponseEntity.badRequest().body("Invalid status code");
+                switch (statusName.toUpperCase()) {
+                    case "CREATED":
+                        status = TransportOrderStatus.CREATED;
+                        break;
+                    case "SCHEDULED":
+                        status = TransportOrderStatus.SCHEDULED;
+                        break;
+                    case "IN_TRANSIT":
+                        status = TransportOrderStatus.IN_TRANSIT;
+                        break;
+                    case "DELIVERED":
+                        status = TransportOrderStatus.DELIVERED;
+                        break;
+                    case "CANCELLED":
+                        status = TransportOrderStatus.CANCELLED;
+                        break;
+                    case "ON_HOLD":
+                        status = TransportOrderStatus.ON_HOLD;
+                        break;
+                    default:
+                        return ResponseEntity.badRequest().body("Invalid status name");
+                }
             }
             transportOrderService.updateTransportOrderStatus(id, status);
             return ResponseEntity.ok("Status updated to " + status);
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            return ResponseEntity.badRequest().body("Problem changing status");
         }
     }
+
+
 
     @Operation(
             summary = "Update transport order status by client",
             description = """
-        Updates the status of a transport order. Default status is DELIVERED.
-        Optional status codes:
-        0 - ON_HOLD,
-        -1 - CANCELLED.
+        Updates the status of a transport order by status name.
+        If no status name is provided, defaults to DELIVERED.
+        Allowed status names (case-insensitive):
+        CREATED, SCHEDULED, IN_TRANSIT, DELIVERED, CANCELLED, ON_HOLD.
         Access restricted to users with role CLIENT.
         """,
             security = @SecurityRequirement(name = "bearerAuth")
@@ -160,17 +205,34 @@ public class TransportOrderController {
 
     @PutMapping("/client/order/status/{id}")
     public ResponseEntity<String> updateStatusClient(@PathVariable Integer id,
-                                                     @RequestParam(required = false) Integer statusCode) {
+                                                     @RequestParam(required = false) String statusName) {
         try {
             TransportOrderStatus status;
-            if (statusCode == null) {
-                status = TransportOrderStatus.DELIVERED;
-            } else if (statusCode == 0) {
-                status = TransportOrderStatus.ON_HOLD;
-            } else if (statusCode == -1) {
-                status = TransportOrderStatus.CANCELLED;
+            if (statusName == null) {
+                status = TransportOrderStatus.DELIVERED;  // default
             } else {
-                return ResponseEntity.badRequest().body("Invalid status code");
+                switch (statusName.toUpperCase()) {
+                    case "CREATED":
+                        status = TransportOrderStatus.CREATED;
+                        break;
+                    case "SCHEDULED":
+                        status = TransportOrderStatus.SCHEDULED;
+                        break;
+                    case "IN_TRANSIT":
+                        status = TransportOrderStatus.IN_TRANSIT;
+                        break;
+                    case "DELIVERED":
+                        status = TransportOrderStatus.DELIVERED;
+                        break;
+                    case "CANCELLED":
+                        status = TransportOrderStatus.CANCELLED;
+                        break;
+                    case "ON_HOLD":
+                        status = TransportOrderStatus.ON_HOLD;
+                        break;
+                    default:
+                        return ResponseEntity.badRequest().body("Invalid status name");
+                }
             }
             transportOrderService.updateTransportOrderStatus(id, status);
             return ResponseEntity.ok("Status updated to " + status);

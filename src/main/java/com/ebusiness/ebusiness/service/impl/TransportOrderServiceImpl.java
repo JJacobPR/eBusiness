@@ -155,9 +155,6 @@ public class TransportOrderServiceImpl implements TransportOrderService {
     @Override
     public TransportOrder updateTransportOrderStatus(Integer id, TransportOrderStatus newStatus) {
         return transportOrderRepository.findById(id).map(order -> {
-            if (order.getStatus() == TransportOrderStatus.DELIVERED) {
-                throw new IllegalArgumentException("Cannot set status after it has been DELIVERED");
-            }
             order.setStatus(newStatus);
             return transportOrderRepository.save(order);
         }).orElseThrow(() -> new IllegalArgumentException("TransportOrder not found with id: " + id));
@@ -224,6 +221,56 @@ public class TransportOrderServiceImpl implements TransportOrderService {
                 .map(Driver::getUserID)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No available driver found for the provided addresses."));
+    }
+
+
+    @Override
+    public List<TransportOrderResponseDto> getActiveOrdersForClient(String email) {
+        Client client = clientRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+
+        List<TransportOrder> orders = transportOrderRepository
+                .findAllByClientAndStatusNotIn(client, List.of(
+                        TransportOrderStatus.CANCELLED,
+                        TransportOrderStatus.DELIVERED
+                ));
+
+        return orders.stream()
+                .map(TransportOrderResponseDto::new)
+                .toList();
+    }
+
+    @Override
+    public List<TransportOrderResponseDto> getHistoryForClient(String email) {
+        Client client = clientRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+
+        List<TransportOrder> orders = transportOrderRepository
+                .findAllByClientAndStatusIn(client, List.of(
+                        TransportOrderStatus.CANCELLED,
+                        TransportOrderStatus.DELIVERED
+                ));
+
+        return orders.stream()
+                .map(TransportOrderResponseDto::new)
+                .toList();
+    }
+
+
+    @Override
+    public List<TransportOrderResponseDto> getActiveOrdersForDriver(String email) {
+        Driver driver = driverRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Driver not found"));
+
+        List<TransportOrder> orders = transportOrderRepository
+                .findAllByDriverAndStatusNotIn(driver, List.of(
+                        TransportOrderStatus.CANCELLED,
+                        TransportOrderStatus.DELIVERED
+                ));
+
+        return orders.stream()
+                .map(TransportOrderResponseDto::new)
+                .toList();
     }
 
 

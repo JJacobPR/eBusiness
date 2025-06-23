@@ -21,5 +21,11 @@ public interface TransportOrderService {
     double calculateCost(List<PackageCreateDto> packages, boolean helpUnload);
     void deleteTransportOrder(Integer id);
 
+    List<TransportOrderResponseDto> getActiveOrdersForClient(String email);
+
+    List<TransportOrderResponseDto> getHistoryForClient(String email);
+
+    List<TransportOrderResponseDto> getActiveOrdersForDriver(String email);
+
     TransportOrderResponseDto getOrderResponseDtoById(Integer id);
 }
