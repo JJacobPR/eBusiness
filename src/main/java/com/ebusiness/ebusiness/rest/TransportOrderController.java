@@ -4,6 +4,7 @@ import com.ebusiness.ebusiness.config.TransportOrderStatus;
 import com.ebusiness.ebusiness.dto.TransportOrderCostDto;
 import com.ebusiness.ebusiness.dto.TransportOrderCreateDto;
 import com.ebusiness.ebusiness.dto.TransportOrderResponseDto;
+import com.ebusiness.ebusiness.dto.TransportOrderUpdateDto;
 import com.ebusiness.ebusiness.entity.TransportOrder;
 import com.ebusiness.ebusiness.service.service.TransportOrderService;
 import com.ebusiness.ebusiness.service.service.UserService;
@@ -46,14 +47,36 @@ public class TransportOrderController {
         }
     }
 
+
+
+    @Operation(
+            summary = "Updates a transport order",
+            description = """
+            Updates a transport order with packages (dimensions in centimeters, weight in grams).
+            Access restricted to users with role CLIENT.
+            """,
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PutMapping("/client/order/{orderId}")
+    public ResponseEntity<TransportOrderResponseDto> updateOrder(
+            @RequestBody TransportOrderUpdateDto transportOrderUpdateDto, @PathVariable Integer orderId,
+            Authentication authentication) {
+        try {
+            TransportOrder order = transportOrderService.updateTransportOrder(orderId, transportOrderUpdateDto);
+            TransportOrderResponseDto responseDto = new TransportOrderResponseDto(order);
+            return ResponseEntity.ok(responseDto);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
     @Operation(
             summary = "Returns predicted cost of the delivery",
             description = """
             Packages (dimensions in centimeters, weight in grams).
             """
     )
-
-
     @PostMapping("/order/cost")
     public ResponseEntity<Double> getCost(
             @RequestBody TransportOrderCostDto transportOrderCostDto) {

@@ -3,6 +3,7 @@ package com.ebusiness.ebusiness.service.impl;
 import com.ebusiness.ebusiness.config.TransportOrderStatus;
 import com.ebusiness.ebusiness.dto.PackageCreateDto;
 import com.ebusiness.ebusiness.dto.TransportOrderCreateDto;
+import com.ebusiness.ebusiness.dto.TransportOrderUpdateDto;
 import com.ebusiness.ebusiness.entity.Client;
 import com.ebusiness.ebusiness.entity.Driver;
 import com.ebusiness.ebusiness.entity.Package;
@@ -22,9 +23,10 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-public class TransportOrderImpl implements TransportOrderService {
+public class TransportOrderServiceImpl implements TransportOrderService {
 
 
     private final TransportOrderRepository transportOrderRepository;
@@ -32,7 +34,7 @@ public class TransportOrderImpl implements TransportOrderService {
     private final ClientRepository clientRepository;
     private final DriverRepository driverRepository;
 
-    public TransportOrderImpl(TransportOrderRepository transportOrderRepository,
+    public TransportOrderServiceImpl(TransportOrderRepository transportOrderRepository,
                                      PackageRepository packageRepository,
                                      ClientRepository clientRepository,
                                      DriverRepository driverRepository) {
@@ -107,24 +109,47 @@ public class TransportOrderImpl implements TransportOrderService {
     }
 
     @Override
-    public TransportOrder updateTransportOrder(Integer id, TransportOrder updatedTransportOrder) {
+    public TransportOrder updateTransportOrder(Integer id, TransportOrderUpdateDto dto) {
         return transportOrderRepository.findById(id).map(order -> {
-            order.setClient(updatedTransportOrder.getClient());
-            order.setDriver(updatedTransportOrder.getDriver());
-            order.setOriginAddress(updatedTransportOrder.getOriginAddress());
-            order.setDestinationAddress(updatedTransportOrder.getDestinationAddress());
-            order.setPrice(updatedTransportOrder.getPrice());
-            order.setStatus(updatedTransportOrder.getStatus());
-            order.setCreatedAt(updatedTransportOrder.getCreatedAt());
-            order.setPickupTime(updatedTransportOrder.getPickupTime());
-            order.setDeliveryTime(updatedTransportOrder.getDeliveryTime());
-            order.setPackages(updatedTransportOrder.getPackages());
+
+            if (dto.getDriverID() != null) {
+                Driver driver = driverRepository.findById(dto.getDriverID())
+                        .orElseThrow(() -> new RuntimeException("Driver not found"));
+                order.setDriver(driver);
+            }
+
+            order.setOriginAddress(dto.getOriginAddress());
+            order.setDestinationAddress(dto.getDestinationAddress());
+            order.setPickupTime(dto.getPickupTime());
+            order.setDeliveryTime(dto.getUnloadTime());
+            order.setHelpUnload(dto.isHelpUnload());
+            order.setPrice(calculateCost(dto.getPackages(), dto.isHelpUnload()));
+            order.setUpdatedAt(LocalDateTime.now());
+
+            if (dto.getPackages() != null) {
+                order.getPackages().clear();
+
+                List<Package> newPackages = dto.getPackages().stream().map(pkgDto -> {
+                    Package pkg = new Package();
+                    pkg.setTransportOrder(order);
+                    pkg.setHeight(pkgDto.getHeight());
+                    pkg.setWidth(pkgDto.getWidth());
+                    pkg.setDepth(pkgDto.getDepth());
+                    pkg.setWeight(pkgDto.getWeight());
+                    pkg.setFragile(pkgDto.isFragile());
+                    pkg.setComment(pkgDto.getComment());
+                    pkg.setCreatedAt(LocalDateTime.now());
+                    return pkg;
+                }).collect(Collectors.toList());
+
+                order.getPackages().addAll(newPackages);
+            }
+
             return transportOrderRepository.save(order);
-        }).orElseGet(() -> {
-            updatedTransportOrder.setOrderID(id);
-            return transportOrderRepository.save(updatedTransportOrder);
-        });
+        }).orElseThrow(() -> new RuntimeException("TransportOrder not found"));
     }
+
+
 
     @Override
     public TransportOrder updateTransportOrderStatus(Integer id, TransportOrderStatus newStatus) {

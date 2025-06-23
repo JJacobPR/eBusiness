@@ -3,6 +3,7 @@ package com.ebusiness.ebusiness.service.service;
 import com.ebusiness.ebusiness.config.TransportOrderStatus;
 import com.ebusiness.ebusiness.dto.PackageCreateDto;
 import com.ebusiness.ebusiness.dto.TransportOrderCreateDto;
+import com.ebusiness.ebusiness.dto.TransportOrderUpdateDto;
 import com.ebusiness.ebusiness.entity.TransportOrder;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface TransportOrderService {
     Optional<TransportOrder> getTransportOrderById(Integer id);
     TransportOrder createTransportOrder(TransportOrder transportOrder);
     TransportOrder createTransportOrder(String email, TransportOrderCreateDto dto);
-    TransportOrder updateTransportOrder(Integer id, TransportOrder updatedTransportOrder);
+    TransportOrder updateTransportOrder(Integer id, TransportOrderUpdateDto dto);
     TransportOrder updateTransportOrderStatus(Integer id, TransportOrderStatus status);
     String createQRCode(Integer id);
     double calculateCost(List<PackageCreateDto> packages, boolean helpUnload);
