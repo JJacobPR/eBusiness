@@ -1,12 +1,24 @@
 package com.ebusiness.ebusiness.service.impl;
 
-import com.ebusiness.ebusiness.dto.RegisterDto;
+import com.ebusiness.ebusiness.dto.*;
+import com.ebusiness.ebusiness.entity.Client;
+import com.ebusiness.ebusiness.entity.Driver;
 import com.ebusiness.ebusiness.entity.UserEntity;
 import com.ebusiness.ebusiness.entity.Role;
+import com.ebusiness.ebusiness.repository.ClientRepository;
+import com.ebusiness.ebusiness.repository.DriverRepository;
 import com.ebusiness.ebusiness.repository.UserRepository;
+import com.ebusiness.ebusiness.security.TokenGenerator;
+import com.ebusiness.ebusiness.service.service.ClientService;
+import com.ebusiness.ebusiness.service.service.DriverService;
 import com.ebusiness.ebusiness.service.service.RoleService;
 import com.ebusiness.ebusiness.service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +32,21 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
+    private final DriverRepository driverRepository;
+    private final ClientRepository  clientRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleService roleService, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, RoleService roleService, PasswordEncoder passwordEncoder, DriverRepository driverRepository, ClientRepository clientRepository) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
+        this.driverRepository = driverRepository;
+        this.clientRepository = clientRepository;
+    }
+
+    @Override
+    public UserEntity findByEmail(String email) {
+        return userRepository.getUserEntityByEmail(email);
     }
 
     @Override
@@ -41,6 +62,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<UserEntity> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public List<String> getRolesByEmail(String email) {
+        return userRepository.findRolesByEmail(email);
     }
 
     @Override
@@ -91,5 +117,60 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Integer id) {
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public LoginResponseDto buildResponse(UserEntity user, String token) {
+        List<String> roles = getRolesByEmail(user.getEmail());
+
+        if (roles.contains("ADMIN")) {
+            return buildAdminResponse(user, token, roles);
+        } else if (roles.contains("CLIENT")) {
+            return buildClientResponse(user, token, roles);
+        } else if (roles.contains("DRIVER")) {
+            return buildDriverResponse(user, token, roles);
+        }
+
+        throw new IllegalStateException("Unsupported role");
+    }
+
+
+    private LoginResponseDto buildAdminResponse(UserEntity user, String token, List<String> roles) {
+        LoginResponseDto dto = new LoginResponseDto();
+        fillCommonUserFields(dto, user, token, roles);
+        return dto;
+    }
+
+    private ClientResponseDto buildClientResponse(UserEntity user, String token, List<String> roles) {
+        Client client = clientRepository.findByEmail(user.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("Client not found"));
+
+        ClientResponseDto dto = new ClientResponseDto();
+        fillCommonUserFields(dto, user, token, roles);
+        dto.setPhone(client.getPhone());
+        dto.setAddress(client.getAddress());
+        return dto;
+    }
+
+    private DriverResponseDto buildDriverResponse(UserEntity user, String token, List<String> roles) {
+        Driver driver = driverRepository.findByEmail(user.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("Driver not found"));
+
+        DriverResponseDto dto = new DriverResponseDto();
+        fillCommonUserFields(dto, user, token, roles);
+        dto.setPhone(driver.getPhone());
+        dto.setCity(driver.getCity());
+        dto.setAvailability_status(driver.getAvailabilityStatus());
+        dto.setVehicleDetails(driver.getVehicleDetails());
+        return dto;
+    }
+
+    private void fillCommonUserFields(LoginResponseDto dto, UserEntity user, String token, List<String> roles) {
+        dto.setEmail(user.getEmail());
+        dto.setUsername(user.getUsername());
+        dto.setUser_id(user.getUserID());
+        dto.setRegistration_date(user.getRegistrationDate());
+        dto.setToken(token);
+        dto.setRoles(roles);
     }
 }

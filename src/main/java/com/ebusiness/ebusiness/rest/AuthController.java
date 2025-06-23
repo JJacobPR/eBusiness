@@ -1,29 +1,41 @@
 package com.ebusiness.ebusiness.rest;
 
 import com.ebusiness.ebusiness.dto.*;
+import com.ebusiness.ebusiness.entity.Client;
+import com.ebusiness.ebusiness.entity.Driver;
+import com.ebusiness.ebusiness.entity.UserEntity;
 import com.ebusiness.ebusiness.security.TokenGenerator;
 import com.ebusiness.ebusiness.service.service.ClientService;
 import com.ebusiness.ebusiness.service.service.DriverService;
 import com.ebusiness.ebusiness.service.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+    private AuthenticationManager authenticationManager;
+    private TokenGenerator tokenGenerator;
     private final UserService userService;
     private final ClientService clientService;
     private final DriverService driverService;
-    private final TokenGenerator tokenGenerator;
 
     AuthController(AuthenticationManager authenticationManager, TokenGenerator tokenGenerator, ClientService clientService, DriverService driverService, UserService userService) {
         this.authenticationManager = authenticationManager;
@@ -35,14 +47,31 @@ public class AuthController {
 
 
     @PostMapping("login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getEmail(), loginRequestDto.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = tokenGenerator.generateToken(authentication);
+    public ResponseEntity<? extends LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequestDto.getEmail(), loginRequestDto.getPassword())
+            );
 
-        AuthResponseDto authResponseDto = new AuthResponseDto(token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return ResponseEntity.ok(authResponseDto);
+            String email = loginRequestDto.getEmail();
+            Optional<UserEntity> optionalUser = userService.getUserByEmail(email);
+            if (optionalUser.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            UserEntity user = optionalUser.get();
+            String token = tokenGenerator.generateToken(authentication);
+
+            LoginResponseDto response = userService.buildResponse(user, token);
+            return ResponseEntity.ok(response);
+
+        } catch (BadCredentialsException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (UsernameNotFoundException | IllegalStateException ex) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @Operation(

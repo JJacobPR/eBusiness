@@ -12,8 +12,11 @@ public class Driver extends UserEntity {
     @Column(name = "phone", nullable = false)
     private String phone;
 
-    @Column(name = "vehicle_details", columnDefinition = "TEXT")
+    @Column(name = "vehicle_details", columnDefinition = "TEXT", nullable = false)
     private String vehicleDetails;
+
+    @Column(name="city", nullable = false)
+    private String city;
 
     @Column(name = "availability_status")
     private Boolean availabilityStatus;
@@ -26,17 +29,10 @@ public class Driver extends UserEntity {
 
     public Driver() {}
 
-    public Driver(String phone, String vehicleDetails, Boolean availabilityStatus, Boolean verificationStatus) {
+    public Driver(String phone, String vehicleDetails, String city, Boolean availabilityStatus, Boolean verificationStatus) {
         this.phone = phone;
         this.vehicleDetails = vehicleDetails;
-        this.availabilityStatus = availabilityStatus;
-        this.verificationStatus = verificationStatus;
-    }
-
-    public Driver(LocalDateTime registrationDate, String password, String email, String username, int user_id, String phone, String vehicleDetails, Boolean availabilityStatus, Boolean verificationStatus) {
-        super(registrationDate, password, email, username, user_id);
-        this.phone = phone;
-        this.vehicleDetails = vehicleDetails;
+        this.city = city;
         this.availabilityStatus = availabilityStatus;
         this.verificationStatus = verificationStatus;
     }
@@ -63,6 +59,14 @@ public class Driver extends UserEntity {
 
     public void setAvailabilityStatus(Boolean availabilityStatus) {
         this.availabilityStatus = availabilityStatus;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public Boolean getVerificationStatus() {

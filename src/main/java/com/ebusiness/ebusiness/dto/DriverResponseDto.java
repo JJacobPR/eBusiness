@@ -1,12 +1,14 @@
 package com.ebusiness.ebusiness.dto;
 
-import com.ebusiness.ebusiness.entity.UserEntity;
-
-public class RegisterDriverDto extends UserEntity {
-
+public class DriverResponseDto extends LoginResponseDto {
     private String phone;
     private String vehicleDetails;
     private String city;
+    private Boolean availability_status;
+
+    public DriverResponseDto() {
+
+    }
 
     public String getPhone() {
         return phone;
@@ -15,7 +17,6 @@ public class RegisterDriverDto extends UserEntity {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-
 
     public String getVehicleDetails() {
         return vehicleDetails;
@@ -31,5 +32,13 @@ public class RegisterDriverDto extends UserEntity {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public Boolean getAvailability_status() {
+        return availability_status;
+    }
+
+    public void setAvailability_status(Boolean availability_status) {
+        this.availability_status = availability_status;
     }
 }

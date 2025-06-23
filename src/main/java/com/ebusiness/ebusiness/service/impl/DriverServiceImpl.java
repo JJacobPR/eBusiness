@@ -78,6 +78,7 @@ public class DriverServiceImpl implements DriverService {
         driver.setEmail(registerDriverDto.getEmail());
         driver.setPassword(passwordEncoder.encode(registerDriverDto.getPassword()));
         driver.setPhone(registerDriverDto.getPhone());
+        driver.setCity(registerDriverDto.getCity());
         driver.setVehicleDetails(registerDriverDto.getVehicleDetails());
         driver.setAvailabilityStatus(false);
         driver.setVerificationStatus(false);
@@ -98,6 +99,7 @@ public class DriverServiceImpl implements DriverService {
                     existing.setEmail(updatedDriver.getEmail());
                     existing.setPassword(updatedDriver.getPassword());
                     existing.setPhone(updatedDriver.getPhone());
+                    existing.setCity(updatedDriver.getCity());
                     existing.setVehicleDetails(updatedDriver.getVehicleDetails());
                     existing.setAvailabilityStatus(updatedDriver.getAvailabilityStatus());
                     existing.setVerificationStatus(updatedDriver.getVerificationStatus());
