@@ -27,6 +27,7 @@ public class Driver extends UserEntity {
     @Column(name = "blocked", nullable = false)
     private Boolean blocked;
 
+
     @OneToMany(mappedBy = "driver", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
     private List<TransportOrder> transportOrders;
 

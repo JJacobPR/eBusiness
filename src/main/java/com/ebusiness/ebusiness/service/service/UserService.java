@@ -35,4 +35,6 @@ public interface UserService {
     void deleteUser(Integer id);
 
     LoginResponseDto buildResponse(UserEntity user, String token);
+
+    LoginResponseDto buildResponseWithoutToken(UserEntity user);
 }

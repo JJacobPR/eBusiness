@@ -1,11 +1,10 @@
 package com.ebusiness.ebusiness.dto;
 
-public class ClientResponseDto extends UserResponseDto {
+    public class ClientLoginResponseDto extends LoginResponseDto {
+        private String phone;
+        private String address;
 
-    private String phone;
-    private String address;
-
-    public ClientResponseDto() {}
+    public ClientLoginResponseDto() {}
 
     public String getPhone() {
         return phone;

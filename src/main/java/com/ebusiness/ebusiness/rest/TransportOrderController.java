@@ -23,6 +23,15 @@ public class TransportOrderController {
         this.transportOrderService = transportOrderService;
     }
 
+
+    @GetMapping("/client/order/{orderId}")
+    public ResponseEntity<TransportOrderResponseDto> getOrder(
+            @PathVariable Integer orderId) {
+
+        TransportOrderResponseDto dto = transportOrderService.getOrderResponseDtoById(orderId);
+        return ResponseEntity.ok(dto);
+    }
+
     @Operation(
             summary = "Create a new transport order",
             description = """
@@ -92,15 +101,13 @@ public class TransportOrderController {
     @Operation(
             summary = "Create a qr code",
             description = """
-            Creates a qr code with the id of order.
-            Access restricted to users with role CLIENT.
-            """,
-            security = @SecurityRequirement(name = "bearerAuth")
+            Creates a qr code with the id of order..
+            """
     )
-    @GetMapping("/client/order/qr/{id}")
-    public ResponseEntity<String> getQRCode(@PathVariable Integer id) {
+    @GetMapping("/order/qr/{orderId}")
+    public ResponseEntity<String> getQRCode(@PathVariable Integer orderId) {
         try {
-            String qrCode = transportOrderService.createQRCode(id);
+            String qrCode = transportOrderService.createQRCode(orderId);
             return ResponseEntity.ok(qrCode);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body("Problem generating QR code");

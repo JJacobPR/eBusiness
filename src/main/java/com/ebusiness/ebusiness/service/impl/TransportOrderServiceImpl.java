@@ -3,6 +3,7 @@ package com.ebusiness.ebusiness.service.impl;
 import com.ebusiness.ebusiness.config.TransportOrderStatus;
 import com.ebusiness.ebusiness.dto.PackageCreateDto;
 import com.ebusiness.ebusiness.dto.TransportOrderCreateDto;
+import com.ebusiness.ebusiness.dto.TransportOrderResponseDto;
 import com.ebusiness.ebusiness.dto.TransportOrderUpdateDto;
 import com.ebusiness.ebusiness.entity.Client;
 import com.ebusiness.ebusiness.entity.Driver;
@@ -224,5 +225,14 @@ public class TransportOrderServiceImpl implements TransportOrderService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No available driver found for the provided addresses."));
     }
+
+
+    @Override
+    public TransportOrderResponseDto getOrderResponseDtoById(Integer id) {
+        TransportOrder order = transportOrderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        return new TransportOrderResponseDto(order);
+    }
+
 
 }

@@ -1,14 +1,16 @@
 package com.ebusiness.ebusiness.dto;
 
-public class DriverResponseDto extends LoginResponseDto {
+import jakarta.persistence.Column;
+
+public class DriverResponseDto extends UserResponseDto {
+
     private String phone;
     private String vehicleDetails;
     private String city;
-    private Boolean availability_status;
+    private Boolean availabilityStatus;
+    private Boolean verificationStatus;
+    private Boolean blocked;
 
-    public DriverResponseDto() {
-
-    }
 
     public String getPhone() {
         return phone;
@@ -34,11 +36,27 @@ public class DriverResponseDto extends LoginResponseDto {
         this.city = city;
     }
 
-    public Boolean getAvailability_status() {
-        return availability_status;
+    public Boolean getAvailabilityStatus() {
+        return availabilityStatus;
     }
 
-    public void setAvailability_status(Boolean availability_status) {
-        this.availability_status = availability_status;
+    public void setAvailabilityStatus(Boolean availabilityStatus) {
+        this.availabilityStatus = availabilityStatus;
+    }
+
+    public Boolean getVerificationStatus() {
+        return verificationStatus;
+    }
+
+    public void setVerificationStatus(Boolean verificationStatus) {
+        this.verificationStatus = verificationStatus;
+    }
+
+    public Boolean getBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(Boolean blocked) {
+        this.blocked = blocked;
     }
 }
