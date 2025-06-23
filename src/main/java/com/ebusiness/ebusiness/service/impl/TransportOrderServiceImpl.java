@@ -156,6 +156,16 @@ public class TransportOrderServiceImpl implements TransportOrderService {
     public TransportOrder updateTransportOrderStatus(Integer id, TransportOrderStatus newStatus) {
         return transportOrderRepository.findById(id).map(order -> {
             order.setStatus(newStatus);
+
+            // Make driver available again if order is completed or cancelled
+            if (newStatus == TransportOrderStatus.CANCELLED || newStatus == TransportOrderStatus.DELIVERED) {
+                Driver driver = order.getDriver();
+                if (driver != null) {
+                    driver.setAvailabilityStatus(true);
+                    driverRepository.save(driver);
+                }
+            }
+
             return transportOrderRepository.save(order);
         }).orElseThrow(() -> new IllegalArgumentException("TransportOrder not found with id: " + id));
     }
